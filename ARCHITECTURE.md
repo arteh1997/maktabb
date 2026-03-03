@@ -138,16 +138,19 @@ reports (id, student_id, term, academic_year, generated_by, storage_path, create
 
 ## Mobile Strategy
 
-**PWA (Progressive Web App) — not a native app.**
+**PWA-First for MVP.** Teachers and parents access the app via browser or home screen shortcuts. Teacher attendance marking works on phone via PWA with service worker cache for offline fallback. Parent portal is web-only for MVP.
 
-Reasoning:
-- Teachers mark attendance on a phone in class — PWA covers this with "Add to Home Screen"
-- Parents check progress occasionally — web is fine
-- No App Store review delays for MVP
-- Supabase Realtime works in PWA
-- Native app deferred to post-v1 if user research shows it's needed
+**Path to App Store: Capacitor.** Post-MVP, wrap in Capacitor for iOS/Android. Adds: offline reliability (native storage + sync), push notifications for absence alerts (`@capacitor/push-notifications`), native feel. Same Next.js codebase — no React Native.
 
-PWA setup: `next-pwa` or manual `manifest.json` + service worker. Offline support for attendance marking (queue marks locally, sync when online) — this is a v1 enhancement, not MVP.
+**Critical constraint:** Next.js SSR does not work in the Capacitor WebView. Teacher and parent routes must use `'use client'` with data fetching via `/api/...` routes. Server components are fine for admin-only desktop routes.
+
+**Practical rules:**
+1. Mobile routes fetch via API endpoints, not server components.
+2. Mark mobile components with `'use client'`.
+3. Service worker caching for offline attendance — queue locally, sync when online.
+4. Push: web push for PWA, Capacitor plugin for native.
+
+One codebase. No React Native. PWA keeps velocity high for MVP. Capacitor bridges to App Store when needed.
 
 ---
 
