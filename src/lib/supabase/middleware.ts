@@ -2,7 +2,11 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "@/lib/types/database";
 
+// Routes accessible without authentication
 const PUBLIC_ROUTES = ["/login", "/signup", "/auth/callback", "/auth/confirm"];
+
+// Routes that redirect authenticated users to dashboard
+const GUEST_ONLY_ROUTES = ["/login", "/signup"];
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -50,8 +54,11 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Redirect authenticated users away from auth pages
-  if (user && isPublicRoute) {
+  // Redirect authenticated users away from login/signup
+  const isGuestOnly = GUEST_ONLY_ROUTES.some((route) =>
+    pathname.startsWith(route)
+  );
+  if (user && isGuestOnly) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";
     return NextResponse.redirect(url);
