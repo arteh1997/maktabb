@@ -1,7 +1,10 @@
-export default function AdminLayout({
+import { requireRole } from "@/lib/auth/get-user";
+
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  await requireRole("admin");
   return <>{children}</>;
 }
